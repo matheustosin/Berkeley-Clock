@@ -9,6 +9,8 @@ public class BerkeleyServer {
     private static final int BUFFER_SIZE = 1024;
     private static final String date = "03/06/2023 12:12:00";
     private static final int INTERVALO = 5000;
+    private static final String timeRequest = "TIME_REQUEST";
+    private static final String timeUpdate = "TIME_UPDATE";
 
     public static void main(String[] args) throws InterruptedException {
         try {
@@ -25,7 +27,7 @@ public class BerkeleyServer {
             while (true) {
                 Thread.sleep(INTERVALO);
 
-                String resquestTime = "TIME_REQUEST";
+                String resquestTime = timeRequest;
                 byte[] resquestTimeBytes = resquestTime.getBytes();
 
                 // Get the client's address and port
