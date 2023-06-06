@@ -1,14 +1,14 @@
-public class ClientModel {
+import java.time.LocalTime;
+
+public class WorkerModel {
     private String ip;
     private int port;
-    private long lastCurrentTime;
+    private LocalTime lastCurrentTime;
     private long delay;
 
-    public ClientModel(String ip, int port, long lastCurrentTime, long delay) {
+    public WorkerModel(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        this.lastCurrentTime = lastCurrentTime;
-        this.delay = delay;
     }
 
     public String getIp() {
@@ -27,11 +27,11 @@ public class ClientModel {
         this.port = port;
     }
 
-    public long getLastCurrentTime() {
+    public LocalTime getLastCurrentTime() {
         return lastCurrentTime;
     }
 
-    public void setLastCurrentTime(long currentTime) {
+    public void setLastCurrentTime(LocalTime currentTime) {
         this.lastCurrentTime = currentTime;
     }
 
@@ -43,4 +43,3 @@ public class ClientModel {
         this.delay = delay;
     }
 }
-
