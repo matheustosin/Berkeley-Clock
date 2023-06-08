@@ -1,3 +1,5 @@
+package worker;
+
 import java.time.LocalTime;
 
 public class WorkerModel {

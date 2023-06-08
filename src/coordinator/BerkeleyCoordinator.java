@@ -1,3 +1,7 @@
+package coordinator;
+
+import worker.WorkerModel;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalTime;
@@ -9,7 +13,7 @@ public class BerkeleyCoordinator {
         try {
             Properties config = new Properties();
             try {
-                config.load(new FileReader("src/config.properties"));
+                config.load(new FileReader("./config/config.properties"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -29,9 +33,9 @@ public class BerkeleyCoordinator {
             ArrayList<WorkerModel> workers = new ArrayList<>();
 
             workers.add(new WorkerModel(worker1Host, Integer.parseInt(worker1Port)));
-            // workers.add(new WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
-            // workers.add(new WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
-            // workers.add(new WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
+            // workers.add(new worker.WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
+            // workers.add(new worker.WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
+            // workers.add(new worker.WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
 
             Coordinator coordinator = new Coordinator(Integer.parseInt(coordinatorPort), coordinatorLocalTime,
                     Integer.parseInt(acceptedDeviance), workers);

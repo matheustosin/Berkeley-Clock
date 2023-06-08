@@ -1,3 +1,5 @@
+package worker;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.*;
@@ -20,7 +22,7 @@ public class Worker {
         this.delay = delay;
         Properties config = new Properties();
         try {
-            config.load(new FileReader("src/config.properties"));
+            config.load(new FileReader("./config/config.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
