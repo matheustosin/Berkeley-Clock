@@ -82,45 +82,46 @@ public class Coordinator {
 
     private void barkeleyAlgorithm(List<WorkerModel> workers) throws IOException {
         System.out.println("Calculando Berkeley");
-        LocalTime localTime = LocalTime.now();
+        //LocalTime localTime = LocalTime.now();
         // Calcula a primeira média
         long workersAverage = workers.stream()
-                .mapToLong(worker -> localTime.toNanoOfDay() - worker.getLastCurrentTime().toNanoOfDay())
+                .mapToLong(worker -> worker.getLastCurrentTime().toNanoOfDay())
                 .sum();
-        System.out.println("1");
-        workersAverage += localTime.toNanoOfDay() - this.currentTime.toNanoOfDay();
+        workersAverage += this.currentTime.toNanoOfDay();
         long average = workersAverage / (workers.size() + 1);
         // Calcula a nova média filtrando os valores acima do limite de desvio
         long newAverage = 0;
         int workerInCount = 0;
         for (WorkerModel worker : workers) {
-            long diff = Math.abs(worker.getLastCurrentTime().toNanoOfDay() - localTime.toNanoOfDay());
-            if ((diff - average) <= acceptedDeviance) {
-                newAverage += localTime.toNanoOfDay() - worker.getLastCurrentTime().toNanoOfDay();
+            long diff = Math.abs(worker.getLastCurrentTime().toNanoOfDay() - average);
+            if (diff <= acceptedDeviance) {
+                newAverage += worker.getLastCurrentTime().toNanoOfDay();
                 workerInCount++;
             }
         }
         // Verifica se o horário do servidor deve ser inserido na média
-        if (Math.abs(localTime.toNanoOfDay() - this.currentTime.toNanoOfDay() - average) <= acceptedDeviance) {
-            newAverage += localTime.toNanoOfDay() - this.currentTime.toNanoOfDay();
+        if (Math.abs(this.currentTime.toNanoOfDay() - average) <= acceptedDeviance) {
+            newAverage += this.currentTime.toNanoOfDay();
             newAverage = newAverage / (workerInCount + 1);
+        } else {
+            newAverage = newAverage / workerInCount;
         }
+
         for (WorkerModel worker : workers) {
             long oneWayDelay = worker.getDelay() / 2;
-            long offset = oneWayDelay + Math.round(newAverage);
-            LocalTime newTime = worker.getLastCurrentTime().plusNanos(offset);
-            sendTimeToClients(newTime, worker);
+            long offset = oneWayDelay + (average - worker.getLastCurrentTime().toNanoOfDay());
+            sendTimeToClients(offset, worker);
         }
         // Atualiza o tempo de servidor
         this.currentTime = this.currentTime.plusNanos(Math.round(newAverage));
         return;
     }
 
-    private void sendTimeToClients(LocalTime newTime, WorkerModel worker) throws IOException {
-        System.out.println("Eviando novo tempo: " + newTime.toString());
+    private void sendTimeToClients(long offset, WorkerModel worker) throws IOException {
+        System.out.println("Enviando offset para o worker: " + offset);
         InetAddress clientAddress = InetAddress.getByName(worker.getIp());
         int clientPort = worker.getPort();
-        String sendTimeWorker = TIME_UPDATE + "|" + newTime.toString();
+        String sendTimeWorker = TIME_UPDATE + "|" + offset;
         byte[] sendTime = sendTimeWorker.getBytes();
         DatagramPacket requestTimePacket = new DatagramPacket(sendTime, sendTime.length,
                 clientAddress, clientPort);

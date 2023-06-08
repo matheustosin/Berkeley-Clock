@@ -70,7 +70,10 @@ public class Worker {
     private void updateCurrentTime(String timeUpdateRequest) {
         System.out.println("Mensagem recebida: " + timeUpdateRequest);
         String[] messageSplitted = timeUpdateRequest.split("\\|");
-        LocalTime timeReceived = LocalTime.parse(messageSplitted[1]);
+        long offset = Long.parseLong(messageSplitted[1]);
+        System.out.println("Offset recebido: " + offset);
+        LocalTime timeReceived = this.currentTime.plusNanos(offset);
+        System.out.println("Novo tempo do worker: " + timeReceived.toString());
         this.currentTime = timeReceived;
     }
 }
