@@ -28,7 +28,7 @@ public class Coordinator {
         this.socket = new DatagramSocket(port);
         this.workers = workers;
         this.currentTime = currentTime;
-        this.acceptedDeviance = acceptedDeviance * 1000000000;
+        this.acceptedDeviance = acceptedDeviance * 1000000000L;
     }
 
     public void run() {
@@ -82,7 +82,6 @@ public class Coordinator {
 
     private void barkeleyAlgorithm(List<WorkerModel> workers) throws IOException {
         System.out.println("Calculando Berkeley");
-        //LocalTime localTime = LocalTime.now();
         // Calcula a primeira média
         long workersAverage = workers.stream()
                 .mapToLong(worker -> worker.getLastCurrentTime().toNanoOfDay())
@@ -114,7 +113,6 @@ public class Coordinator {
         }
         // Atualiza o tempo de servidor
         this.currentTime = this.currentTime.plusNanos(Math.round(newAverage));
-        return;
     }
 
     private void sendTimeToClients(long offset, WorkerModel worker) throws IOException {
@@ -126,7 +124,6 @@ public class Coordinator {
         DatagramPacket requestTimePacket = new DatagramPacket(sendTime, sendTime.length,
                 clientAddress, clientPort);
         socket.send(requestTimePacket);
-        return;
     }
 }
 

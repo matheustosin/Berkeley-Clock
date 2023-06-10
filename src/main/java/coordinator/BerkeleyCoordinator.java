@@ -13,7 +13,7 @@ public class BerkeleyCoordinator {
         try {
             Properties config = new Properties();
             try {
-                config.load(new FileReader("config/config.properties"));
+                config.load(new FileReader("src/main/java/config/config.properties"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
