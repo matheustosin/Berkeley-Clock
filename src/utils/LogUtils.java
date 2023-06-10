@@ -1,5 +1,10 @@
 package utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.rmi.server.ServerNotActiveException;
 import java.time.LocalTime;
 
 public class LogUtils {
@@ -34,6 +39,14 @@ public class LogUtils {
         outStream.write(localTime + " - " +  message + "\n");
         outStream.flush();
         outStream.close();
+    }
+
+    private void newFile() throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("sharedFile.txt", true));
+        writer.write("Log de execução");
+        writer.newLine();
+        writer.flush();
+        writer.close();
     }
 
 }
