@@ -13,7 +13,7 @@ public class BerkeleyCoordinator {
         try {
             Properties config = new Properties();
             try {
-                config.load(new FileReader("./config/config.properties"));
+                config.load(new FileReader("config/config.properties"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -33,7 +33,7 @@ public class BerkeleyCoordinator {
             ArrayList<WorkerModel> workers = new ArrayList<>();
 
             workers.add(new WorkerModel(worker1Host, Integer.parseInt(worker1Port)));
-            // workers.add(new worker.WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
+            workers.add(new WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
             // workers.add(new worker.WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
             // workers.add(new worker.WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
 

@@ -2,7 +2,7 @@ package worker;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.*;
+import java.net.SocketException;
 import java.time.LocalTime;
 import java.util.Properties;
 
@@ -16,7 +16,7 @@ public class BerkeleyWorker {
 
         Properties config = new Properties();
         try {
-            config.load(new FileReader("./config/config.properties"));
+            config.load(new FileReader("../java/config/config.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,3 +31,4 @@ public class BerkeleyWorker {
     }
 
 }
+
