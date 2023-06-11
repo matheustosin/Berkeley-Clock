@@ -17,13 +17,13 @@ public class LogUtils {
         try {
             File file = new File(name);
             if (!file.exists()) {
-                newFile();
+                newFile(name);
             }
         } catch (Exception ignored) {}
     }
 
-    public void saveLog(String message, String workerIp, String workerPort) throws IOException, ServerNotActiveException {
-        BufferedWriter outStream = new BufferedWriter(new FileWriter("log.txt", true));
+    public void saveLog(String message, String workerIp, String workerPort, String fileName) throws IOException, ServerNotActiveException {
+        BufferedWriter outStream = new BufferedWriter(new FileWriter(fileName, true));
         var localTime = LocalTime.now();
 
         outStream.write(localTime + " - Worker: " + workerIp +
@@ -32,8 +32,8 @@ public class LogUtils {
         outStream.close();
     }
 
-    public void saveLog(String message) throws IOException, ServerNotActiveException {
-        BufferedWriter outStream = new BufferedWriter(new FileWriter("log.txt", true));
+    public void saveLog(String message, String fileName) throws IOException, ServerNotActiveException {
+        BufferedWriter outStream = new BufferedWriter(new FileWriter(fileName, true));
         var localTime = LocalTime.now();
 
         outStream.write(localTime + " - " +  message + "\n");
@@ -41,8 +41,8 @@ public class LogUtils {
         outStream.close();
     }
 
-    private void newFile() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
+    private void newFile(String name) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(name, true));
         writer.write("Log de execução");
         writer.newLine();
         writer.flush();

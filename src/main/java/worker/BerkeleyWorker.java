@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.util.Properties;
 
 public class BerkeleyWorker {
-    public static void main(String[] args) throws SocketException {
+    public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("java worker.BerkeleyWorker <workerNr> 1 to 4");
             return;

@@ -22,6 +22,7 @@ public class Coordinator {
     private static final int INTERVALO = 15;
     private static final String TIME_REQUEST = "TIME_REQUEST";
     private static final String TIME_UPDATE = "TIME_UPDATE";
+    private final String FILE_NAME = "LogCoordinator";
     private LocalTime currentTime;
     private DatagramSocket socket;
     private List<WorkerModel> workers;
@@ -35,7 +36,7 @@ public class Coordinator {
         this.acceptedDeviance = acceptedDeviance * 1000000000L;
         Timer timer = new Timer();
         timer.schedule(timerTask(timeIncrement), 0, 5000);
-        this.logUtils = new LogUtils("LogCoordinator");
+        this.logUtils = new LogUtils(FILE_NAME);
     }
 
     public void run() {
@@ -65,7 +66,7 @@ public class Coordinator {
         return () -> {
             try {
                 byte[] resquestTimeBytes = TIME_REQUEST.getBytes();
-                logUtils.saveLog("Solicitando tempo dos workers");
+                logUtils.saveLog("Solicitando tempo dos workers", FILE_NAME);
 
                 for (WorkerModel worker : this.workers) {
                     System.out.println("Enviando pedido de tempo para: " + worker.getIp() + ":" + worker.getPort());
@@ -85,7 +86,7 @@ public class Coordinator {
                     System.out.println("Pacote recebido de: " + responsePacket.getAddress() + ":"
                             + responsePacket.getPort() + ". Mensagem: " + response);
                     worker.setLastCurrentTime(LocalTime.parse(response));
-                    logUtils.saveLog("Novo tempo recebido: " + worker.getLastCurrentTime().toString().substring(0, worker.getLastCurrentTime().toString().indexOf(".")+4), worker.getIp(), String.valueOf(worker.getPort()));
+                    logUtils.saveLog("Novo tempo recebido: " + worker.getLastCurrentTime().toString().substring(0, worker.getLastCurrentTime().toString().indexOf(".")+4), worker.getIp(), String.valueOf(worker.getPort()), FILE_NAME);
                     long delay = end.toNanoOfDay() - start.toNanoOfDay();
                     worker.setDelay(delay);
                     System.out.println("Tempo entre envio do pedido e recebimento do pacote: "
@@ -109,35 +110,41 @@ public class Coordinator {
                 .sum();
         workersAverage += this.currentTime.toNanoOfDay();
         long average = workersAverage / (workers.size() + 1);
-        logUtils.saveLog("Media antes dos descartes: " + LocalTime.ofNanoOfDay(average));
+        logUtils.saveLog("Media antes dos descartes: " + LocalTime.ofNanoOfDay(average), FILE_NAME);
         // Calcula a nova média filtrando os valores acima do limite de desvio
         long newAverage = 0;
         int workerInCount = 0;
         for (WorkerModel worker : workers) {
             long diff = Math.abs(worker.getLastCurrentTime().toNanoOfDay() - average);
             if (diff <= acceptedDeviance) {
-                logUtils.saveLog("considerado dentro do desvio com desvio de: "+ diff/1000000000L +" segundos da media ", worker.getIp(), String.valueOf(worker.getPort()));
+                logUtils.saveLog("considerado dentro do desvio com desvio de: "+ diff/1000000000L +" segundos da media ", worker.getIp(), String.valueOf(worker.getPort()), FILE_NAME);
                 newAverage += worker.getLastCurrentTime().toNanoOfDay();
                 workerInCount++;
             } else {
-                logUtils.saveLog("descartado com desvio de: "+ diff/1000000000L +" segundos da media ", worker.getIp(), String.valueOf(worker.getPort()));
+                logUtils.saveLog("descartado com desvio de: "+ diff/1000000000L +" segundos da media ", worker.getIp(), String.valueOf(worker.getPort()), FILE_NAME);
             }
         }
         // Verifica se o horário do servidor deve ser inserido na média
         var diffCoordinator = Math.abs(this.currentTime.toNanoOfDay() - average);
         if (diffCoordinator <= acceptedDeviance) {
-            logUtils.saveLog("Coordinator sera considerado na media com desvio de: " + diffCoordinator/1000000000L +" segundos");
+            logUtils.saveLog("Coordinator sera considerado na media com desvio de: " + diffCoordinator/1000000000L +" segundos", FILE_NAME);
             newAverage += this.currentTime.toNanoOfDay();
             newAverage = newAverage / (workerInCount + 1);
         } else {
-            logUtils.saveLog("Coordinator sera descartado com desvio de: " + diffCoordinator/1000000000L +" segundos");
-            newAverage = newAverage / workerInCount;
-
+            logUtils.saveLog("Coordinator sera descartado com desvio de: " + diffCoordinator/1000000000L +" segundos", FILE_NAME);
+            if (newAverage == 0 ) {
+                newAverage = this.currentTime.toNanoOfDay();
+            } else {
+                newAverage = newAverage / workerInCount;
+            }
         }
+        // Usar coordenador se todos workers forem descartados
+
+
         for (WorkerModel worker : workers) {
             long oneWayDelay = worker.getDelay() / 2;
             long offset = oneWayDelay + (average - worker.getLastCurrentTime().toNanoOfDay());
-//            logUtils.saveLog("descartado com a diferença de: "+ diff/1000000000L +" segundos da media ", worker.getIp(), String.valueOf(worker.getPort()));
+            logUtils.saveLog("devera receber o ajuste de: "+ offset/1000000000L +" segundos no tempo ", worker.getIp(), String.valueOf(worker.getPort()), FILE_NAME);
             sendTimeToClients(offset, worker);
         }
         // Atualiza o tempo de servidor
