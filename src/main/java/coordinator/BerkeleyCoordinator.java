@@ -20,6 +20,7 @@ public class BerkeleyCoordinator {
             String coordinatorPort = config.getProperty("PORT_COORDINATOR");
             String coordinatorTime = config.getProperty("TIME_COORDINATOR");
             String acceptedDeviance = config.getProperty("ACCEPTED_DEVIANCE_SECONDS");
+            int timeIncrement = Integer.parseInt(config.getProperty("TIME_INCREMENT_PER_5SECOND_MILIS"));
             LocalTime coordinatorLocalTime = LocalTime.parse(coordinatorTime);
 
             String worker1Port = config.getProperty("PORT_WORKER1");
@@ -34,11 +35,11 @@ public class BerkeleyCoordinator {
 
             workers.add(new WorkerModel(worker1Host, Integer.parseInt(worker1Port)));
             workers.add(new WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
-            // workers.add(new worker.WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
-            // workers.add(new worker.WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
+            workers.add(new worker.WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
+            workers.add(new worker.WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
 
             Coordinator coordinator = new Coordinator(Integer.parseInt(coordinatorPort), coordinatorLocalTime,
-                    Integer.parseInt(acceptedDeviance), workers);
+                    Integer.parseInt(acceptedDeviance), timeIncrement, workers);
             coordinator.run();
         } catch (IOException e) {
             e.printStackTrace();

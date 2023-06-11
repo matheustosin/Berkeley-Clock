@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.*;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,12 +25,14 @@ public class Coordinator {
     private List<WorkerModel> workers;
     private long acceptedDeviance;
 
-    public Coordinator(int port, LocalTime currentTime, int acceptedDeviance, List<WorkerModel> workers)
+    public Coordinator(int port, LocalTime currentTime, int acceptedDeviance, int timeIncrement, List<WorkerModel> workers)
             throws SocketException {
         this.socket = new DatagramSocket(port);
         this.workers = workers;
         this.currentTime = currentTime;
         this.acceptedDeviance = acceptedDeviance * 1000000000L;
+        Timer timer = new Timer();
+        timer.schedule(timerTask(timeIncrement), 0, 5000);
     }
 
     public void run() {
@@ -42,6 +46,16 @@ public class Coordinator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private TimerTask timerTask(int timeIncrement) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                currentTime = currentTime.plusNanos(timeIncrement * 1000000L);
+                System.out.println("COORDINATOR TIME: " + currentTime);
+            }
+        };
     }
 
     private Runnable requestTimeSender() throws IOException, UnknownHostException {

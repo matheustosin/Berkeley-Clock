@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.time.LocalTime;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Worker {
     private static final int BUFFER_SIZE = 1024;
@@ -19,7 +21,7 @@ public class Worker {
     private String coordinatorHost;
     private int coordinatorPort;
 
-    public Worker(int port, LocalTime startTime, long delay) throws SocketException {
+    public Worker(int port, LocalTime startTime, long delay, int timeIncrement) throws SocketException {
         this.socket = new DatagramSocket(port);
         this.currentTime = startTime;
         this.delay = delay;
@@ -31,6 +33,19 @@ public class Worker {
         }
         this.coordinatorHost = config.getProperty("HOST_COORDINATOR");
         this.coordinatorPort = Integer.parseInt(config.getProperty("PORT_COORDINATOR"));
+
+        Timer timer = new Timer();
+        timer.schedule(timerTask(timeIncrement), 0, 5000);
+    }
+
+    private TimerTask timerTask(int timeIncrement) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                currentTime = currentTime.plusNanos(timeIncrement * 1000000L);
+                System.out.println("WORKER TIME: " + currentTime);
+            }
+        };
     }
 
     public void run() {
