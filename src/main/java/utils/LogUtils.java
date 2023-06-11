@@ -9,20 +9,20 @@ import java.time.LocalTime;
 
 public class LogUtils {
 
-    public LogUtils() throws IOException {
-        createLogFile();
+    public LogUtils(String name) throws IOException {
+        createLogFile(name);
     }
 
-    private void createLogFile() throws IOException {
+    private void createLogFile(String name) throws IOException {
         try {
-            File file = new File("log.txt");
+            File file = new File(name);
             if (!file.exists()) {
                 newFile();
             }
         } catch (Exception ignored) {}
     }
 
-    private void saveLog(String message, String workerIp, String workerPort) throws IOException, ServerNotActiveException {
+    public void saveLog(String message, String workerIp, String workerPort) throws IOException, ServerNotActiveException {
         BufferedWriter outStream = new BufferedWriter(new FileWriter("log.txt", true));
         var localTime = LocalTime.now();
 
@@ -42,7 +42,7 @@ public class LogUtils {
     }
 
     private void newFile() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("sharedFile.txt", true));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
         writer.write("Log de execução");
         writer.newLine();
         writer.flush();

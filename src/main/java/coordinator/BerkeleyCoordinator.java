@@ -1,5 +1,6 @@
 package coordinator;
 
+import utils.LogUtils;
 import worker.WorkerModel;
 
 import java.io.FileReader;
@@ -35,8 +36,8 @@ public class BerkeleyCoordinator {
 
             workers.add(new WorkerModel(worker1Host, Integer.parseInt(worker1Port)));
             workers.add(new WorkerModel(worker2Host, Integer.parseInt(worker2Port)));
-            workers.add(new worker.WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
-            workers.add(new worker.WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
+            workers.add(new WorkerModel(worker3Host, Integer.parseInt(worker3Port)));
+            workers.add(new WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
 
             Coordinator coordinator = new Coordinator(Integer.parseInt(coordinatorPort), coordinatorLocalTime,
                     Integer.parseInt(acceptedDeviance), timeIncrement, workers);
