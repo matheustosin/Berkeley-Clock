@@ -2,7 +2,6 @@ package worker;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.SocketException;
 import java.time.LocalTime;
 import java.util.Properties;
 
@@ -32,4 +31,3 @@ public class BerkeleyWorker {
     }
 
 }
-

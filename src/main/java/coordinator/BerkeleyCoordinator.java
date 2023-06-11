@@ -1,6 +1,5 @@
 package coordinator;
 
-import utils.LogUtils;
 import worker.WorkerModel;
 
 import java.io.FileReader;
@@ -22,6 +21,7 @@ public class BerkeleyCoordinator {
             String coordinatorTime = config.getProperty("TIME_COORDINATOR");
             String acceptedDeviance = config.getProperty("ACCEPTED_DEVIANCE_SECONDS");
             int timeIncrement = Integer.parseInt(config.getProperty("TIME_INCREMENT_PER_5SECOND_MILIS"));
+            int timeRequestInterval = Integer.parseInt(config.getProperty("TIME_REQUEST_INVERTAL_SECONDS"));
             LocalTime coordinatorLocalTime = LocalTime.parse(coordinatorTime);
 
             String worker1Port = config.getProperty("PORT_WORKER1");
@@ -40,7 +40,7 @@ public class BerkeleyCoordinator {
             workers.add(new WorkerModel(worker4Host, Integer.parseInt(worker4Port)));
 
             Coordinator coordinator = new Coordinator(Integer.parseInt(coordinatorPort), coordinatorLocalTime,
-                    Integer.parseInt(acceptedDeviance), timeIncrement, workers);
+                    Integer.parseInt(acceptedDeviance), timeIncrement, timeRequestInterval, workers);
             coordinator.run();
         } catch (IOException e) {
             e.printStackTrace();

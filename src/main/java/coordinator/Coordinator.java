@@ -19,21 +19,22 @@ import java.util.logging.Logger;
 public class Coordinator {
     private static final Logger log = Logger.getLogger(Coordinator.class.getName());
     private static final int BUFFER_SIZE = 1024;
-    private static final int INTERVALO = 15;
     private static final String TIME_REQUEST = "TIME_REQUEST";
     private static final String TIME_UPDATE = "TIME_UPDATE";
     private final String FILE_NAME = "LogCoordinator";
+    private int timeRequestInterval;
     private LocalTime currentTime;
     private DatagramSocket socket;
     private List<WorkerModel> workers;
     private long acceptedDeviance;
     private LogUtils logUtils;
 
-    public Coordinator(int port, LocalTime currentTime, int acceptedDeviance, int timeIncrement, List<WorkerModel> workers) throws IOException {
+    public Coordinator(int port, LocalTime currentTime, int acceptedDeviance, int timeIncrement, int timeRequestInterval, List<WorkerModel> workers) throws IOException {
         this.socket = new DatagramSocket(port);
         this.workers = workers;
         this.currentTime = currentTime;
         this.acceptedDeviance = acceptedDeviance * 1000000000L;
+        this.timeRequestInterval = timeRequestInterval;
         Timer timer = new Timer();
         timer.schedule(timerTask(timeIncrement), 0, 5000);
         this.logUtils = new LogUtils(FILE_NAME);
@@ -42,11 +43,11 @@ public class Coordinator {
     public void run() {
         try {
             System.out.println(
-                    "Servidor iniciado, mensagem de sincronizacao sera enviado em intervalos de: " + INTERVALO
+                    "Servidor iniciado, mensagem de sincronizacao sera enviado em intervalos de: " + timeRequestInterval
                             + " segundos.");
 
             ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-            scheduledExecutorService.scheduleAtFixedRate(requestTimeSender(), 1, INTERVALO, TimeUnit.SECONDS);
+            scheduledExecutorService.scheduleAtFixedRate(requestTimeSender(), 1, timeRequestInterval, TimeUnit.SECONDS);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,6 +139,7 @@ public class Coordinator {
                 newAverage = newAverage / workerInCount;
             }
         }
+        logUtils.saveLog("Nova media depois dos descartes: " + this.currentTime, FILE_NAME);
         // Usar coordenador se todos workers forem descartados
 
 
@@ -148,7 +150,7 @@ public class Coordinator {
             sendTimeToClients(offset, worker);
         }
         // Atualiza o tempo de servidor
-        this.currentTime = this.currentTime.plusNanos(Math.round(newAverage));
+        this.currentTime = LocalTime.ofNanoOfDay(newAverage);
     }
 
     private void sendTimeToClients(long offset, WorkerModel worker) throws IOException {

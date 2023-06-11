@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.rmi.server.ServerNotActiveException;
 import java.time.LocalTime;
 import java.util.Properties;
@@ -67,7 +66,8 @@ public class Worker {
                 if (receivedPacket.equals(TIME_REQUEST)) {
                     try {
                         Thread.sleep(this.delay);
-                        this.logUtils.saveLog("Nova solicitacao de tempo. Tempo atual: " + this.currentTime.toString().substring(0, this.currentTime.toString().indexOf(".")+4), FILE_NAME);
+                        this.logUtils.saveLog("Nova solicitacao de tempo. Tempo atual: " + this.currentTime.toString()
+                                .substring(0, this.currentTime.toString().indexOf(".") + 4), FILE_NAME);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ServerNotActiveException e) {
@@ -98,16 +98,21 @@ public class Worker {
 
     // receber no formato TIME_UPDATE|TEMPO
     private void updateCurrentTime(String timeUpdateRequest) throws ServerNotActiveException, IOException {
-        this.logUtils.saveLog("Tempo antes do ajuste: " + this.currentTime.toString().substring(0, this.currentTime.toString().indexOf(".")+4), FILE_NAME);
-//        System.out.println("Mensagem recebida: " + timeUpdateRequest);
+        this.logUtils.saveLog(
+                "Tempo antes do ajuste: "
+                        + this.currentTime.toString().substring(0, this.currentTime.toString().indexOf(".") + 4),
+                FILE_NAME);
+        // System.out.println("Mensagem recebida: " + timeUpdateRequest);
         String[] messageSplitted = timeUpdateRequest.split("\\|");
         long offset = Long.parseLong(messageSplitted[1]);
-        this.logUtils.saveLog("Offset recebido: " + offset/1000000000L + " segundos", FILE_NAME);
-//        System.out.println("Offset recebido: " + offset);
+        this.logUtils.saveLog("Offset recebido: " + offset / 1000000000L + " segundos", FILE_NAME);
+        // System.out.println("Offset recebido: " + offset);
         LocalTime timeReceived = this.currentTime.plusNanos(offset);
-//        System.out.println("Novo tempo do worker: " + timeReceived.toString());
+        // System.out.println("Novo tempo do worker: " + timeReceived.toString());
         this.currentTime = timeReceived;
-        this.logUtils.saveLog("Tempo depois do ajuste: " + this.currentTime.toString().substring(0, this.currentTime.toString().indexOf(".")+4), FILE_NAME);
+        this.logUtils.saveLog(
+                "Tempo depois do ajuste: "
+                        + this.currentTime.toString().substring(0, this.currentTime.toString().indexOf(".") + 4),
+                FILE_NAME);
     }
 }
-
