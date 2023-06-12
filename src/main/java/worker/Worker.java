@@ -50,6 +50,13 @@ public class Worker {
             public void run() {
                 currentTime = currentTime.plusNanos(timeIncrement * 1000000L);
                 System.out.println("WORKER TIME: " + currentTime);
+                try {
+                    logUtils.saveLog("Hora no Worker: " + currentTime, FILE_NAME);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ServerNotActiveException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
     }

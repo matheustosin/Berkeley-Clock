@@ -35,9 +35,9 @@ public class Coordinator {
         this.currentTime = currentTime;
         this.acceptedDeviance = acceptedDeviance * 1000000000L;
         this.timeRequestInterval = timeRequestInterval;
+        this.logUtils = new LogUtils(FILE_NAME);
         Timer timer = new Timer();
         timer.schedule(timerTask(timeIncrement), 0, 5000);
-        this.logUtils = new LogUtils(FILE_NAME);
     }
 
     public void run() {
@@ -58,6 +58,13 @@ public class Coordinator {
             @Override
             public void run() {
                 currentTime = currentTime.plusNanos(timeIncrement * 1000000L);
+                try {
+                    logUtils.saveLog("Hora no Coordinator: " + currentTime, FILE_NAME);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ServerNotActiveException e) {
+                    throw new RuntimeException(e);
+                }
                 System.out.println("COORDINATOR TIME: " + currentTime);
             }
         };
